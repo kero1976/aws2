@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MyAppException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">domain</a> &gt; <a href="index.source.html" class="el_package">domain.exceptions</a> &gt; <span class="el_source">MyAppException.java</span></div><h1>MyAppException.java</h1><pre class="source lang-java linenums">package domain.exceptions;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+/**
+ * ベース例外.
+ * @author kero
+ *
+ */
+public abstract class MyAppException extends Exception{
+
+	private Exception e;
+	private String msg;
+	
+	public MyAppException(String msg) {
+<span class="fc" id="L17">		this(msg, null);</span>
+<span class="fc" id="L18">	}</span>
+	
+<span class="fc" id="L20">	public MyAppException(String msg, Exception e) {</span>
+<span class="fc" id="L21">		this.e = e;</span>
+<span class="fc" id="L22">		this.msg = msg;</span>
+<span class="fc" id="L23">	}</span>
+	
+	public String getMessage() {
+<span class="nc bnc" id="L26" title="All 2 branches missed.">		if(e == null) {</span>
+<span class="nc" id="L27">			return msg;</span>
+		}
+<span class="nc" id="L29">		return String.format(&quot;%s, InnerException:%s&quot;,msg, e.toString());</span>
+	}
+	
+	public String getStackTraceString() {
+<span class="nc bnc" id="L33" title="All 2 branches missed.">		if(e == null) {</span>
+<span class="nc" id="L34">			return getStackTraceString(this);</span>
+		}else {
+<span class="nc" id="L36">			return getStackTraceString(e);</span>
+		}
+	}
+	
+	private String getStackTraceString(Exception e) {
+<span class="nc" id="L41">		try(StringWriter sw = new StringWriter()){</span>
+<span class="nc" id="L42">			try(PrintWriter pw = new PrintWriter(sw)){</span>
+<span class="nc" id="L43">				e.printStackTrace(pw);</span>
+<span class="nc" id="L44">				pw.flush();</span>
+<span class="nc" id="L45">				return sw.toString();</span>
+			}
+<span class="nc" id="L47">		}catch(Exception e1){</span>
+<span class="nc" id="L48">			return e1.toString();</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

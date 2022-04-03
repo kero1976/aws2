@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>S3Get.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">infrastructure</a> &gt; <a href="index.source.html" class="el_package">infrastructure</a> &gt; <span class="el_source">S3Get.java</span></div><h1>S3Get.java</h1><pre class="source lang-java linenums">package infrastructure;
+
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import domain.exceptions.MyAppException;
+import domain.exceptions.MyS3Exception;
+import domain.repositories.IS3GetRepository;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.core.ResponseBytes;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+
+public class S3Get implements IS3GetRepository {
+
+<span class="fc" id="L23">	private static Logger log = LoggerFactory.getLogger(S3Get.class);</span>
+	private S3Client s3;
+
+	public S3Get() {
+<span class="fc" id="L27">		this(Region.AP_NORTHEAST_1);</span>
+<span class="fc" id="L28">	}</span>
+
+<span class="fc" id="L30">	public S3Get(Region region) {</span>
+<span class="fc" id="L31">		log.debug(&quot;**********************************************************************************************START - region:{}&quot;, region);</span>
+<span class="fc" id="L32">		s3 = S3Client.builder().region(region).build();</span>
+<span class="fc" id="L33">	}</span>
+
+<span class="fc" id="L35">	public S3Get(Region region, AwsCredentialsProvider credentialsProvider) {</span>
+<span class="fc" id="L36">		log.debug(&quot;START - region:{}&quot;, region);</span>
+<span class="fc" id="L37">		s3 = S3Client.builder().region(region).credentialsProvider(credentialsProvider).build();</span>
+<span class="fc" id="L38">	}</span>
+	
+	@Override
+	public byte[] GetBytes(String bucketName, String keyName) throws MyAppException {
+<span class="fc" id="L42">		log.debug(&quot;***********************************************************************************************START - bucketName:{}, keyName:{}&quot;, bucketName, keyName);</span>
+		try {
+<span class="fc" id="L44">			GetObjectRequest objectRequest = GetObjectRequest.builder().key(keyName).bucket(bucketName).build();</span>
+
+<span class="fc" id="L46">			ResponseBytes&lt;GetObjectResponse&gt; objectBytes = s3.getObjectAsBytes(objectRequest);</span>
+<span class="fc" id="L47">			return objectBytes.asByteArray();</span>
+
+<span class="fc" id="L49">		} catch (NoSuchKeyException e1) {</span>
+<span class="fc" id="L50">			log.error(&quot;**********************************************************************************************Key:[{}]が見つかりませんでした。&quot;, keyName);</span>
+<span class="fc" id="L51">			throw new MyS3Exception(String.format(&quot;key:[%s]が見つかりませんでした。&quot;, keyName), e1);</span>
+<span class="fc" id="L52">		}catch(NoSuchBucketException e2) {</span>
+<span class="fc" id="L53">			log.error(&quot;**********************************************************************************************Bucket:[{}]が見つかりませんでした。&quot;, bucketName);</span>
+<span class="fc" id="L54">			throw new MyS3Exception(String.format(&quot;Bucket:[%s]が見つかりませんでした。&quot;, bucketName), e2);</span>
+<span class="fc" id="L55">		}catch(S3Exception e3) {</span>
+<span class="fc" id="L56">			log.error(&quot;**********************************************************************************************接続に失敗しました。&quot;);</span>
+<span class="fc" id="L57">			throw new MyS3Exception(&quot;接続に失敗しました。&quot;, e3);</span>
+		}
+	}
+
+	@Override
+	public void close() throws IOException {
+<span class="fc" id="L63">		log.debug(&quot;**********************************************************************************************START&quot;);</span>
+<span class="fc" id="L64">		s3.close();</span>
+<span class="fc" id="L65">		log.debug(&quot;S3のコネクションをクローズしました。&quot;);</span>
+<span class="fc" id="L66">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
